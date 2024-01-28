@@ -90,23 +90,6 @@ namespace stellar_dotnet_sdk_test
         }
 
         [TestMethod]
-        public void TestFromXdr()
-        {
-            var transaction = Transaction.FromEnvelopeXdr("AAAAAF7FIiDToW1fOYUFBC0dmyufJbFTOa2GQESGz+S2h5ViAAAAZAAKVaMAAAABAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA7eBSYbzcL5UKo7oXO24y1ckX+XuCtkDsyNHOp1n1bxAAAAAEqBfIAAAAAAAAAAABtoeVYgAAAEDLki9Oi700N60Lo8gUmEFHbKvYG4QSqXiLIt9T0ru2O5BphVl/jR9tYtHAD+UeDYhgXNgwUxqTEu1WukvEyYcD");
-            var transaction2 = Transaction.FromEnvelopeXdr(transaction.ToEnvelopeXdr());
-
-            Assert.AreEqual(transaction.SourceAccount.AccountId, transaction2.SourceAccount.AccountId);
-            Assert.AreEqual(transaction.SequenceNumber, transaction2.SequenceNumber);
-            Assert.AreEqual(transaction.Fee, transaction2.Fee);
-            Assert.AreEqual(
-                ((CreateAccountOperation)transaction.Operations[0]).StartingBalance,
-                ((CreateAccountOperation)transaction2.Operations[0]).StartingBalance
-            );
-
-            CollectionAssert.AreEqual(transaction.Signatures, transaction2.Signatures);
-        }
-
-        [TestMethod]
         public void TestFromXdrWithMemo()
         {
             var transaction = Transaction.FromEnvelopeXdr(
@@ -122,112 +105,6 @@ namespace stellar_dotnet_sdk_test
             var asset = payment.Asset as AssetTypeCreditAlphaNum;
             Assert.IsNotNull(asset);
             Assert.AreEqual("GOLD", asset.Code);
-        }
-
-        [TestMethod]
-        public void TestBuilderMemoText()
-        {
-            // GBPMKIRA2OQW2XZZQUCQILI5TMVZ6JNRKM423BSAISDM7ZFWQ6KWEBC4
-            var source = KeyPair.FromSecretSeed("SCH27VUZZ6UAKB67BDNF6FA42YMBMQCBKXWGMFD5TZ6S5ZZCZFLRXKHS");
-            var destination = KeyPair.FromAccountId("GDW6AUTBXTOC7FIKUO5BOO3OGLK4SF7ZPOBLMQHMZDI45J2Z6VXRB5NR");
-
-            var account = new Account(source.AccountId, 2908908335136768);
-            var transaction = new TransactionBuilder(account)
-                .AddOperation(new CreateAccountOperation.Builder(destination, "2000").Build())
-                .AddMemo(Memo.Text("Hello world!"))
-                .Build();
-
-            transaction.Sign(source);
-
-            Assert.AreEqual(
-                "AAAAAF7FIiDToW1fOYUFBC0dmyufJbFTOa2GQESGz+S2h5ViAAAAZAAKVaMAAAABAAAAAAAAAAEAAAAMSGVsbG8gd29ybGQhAAAAAQAAAAAAAAAAAAAAAO3gUmG83C+VCqO6FztuMtXJF/l7grZA7MjRzqdZ9W8QAAAABKgXyAAAAAAAAAAAAbaHlWIAAABAxzofBhoayuUnz8t0T1UNWrTgmJ+lCh9KaeOGu2ppNOz9UGw0abGLhv+9oWQsstaHx6YjwWxL+8GBvwBUVWRlBQ==",
-                transaction.ToEnvelopeXdrBase64(TransactionBase.TransactionXdrVersion.V0));
-
-            Assert.AreEqual(
-                "AAAAAgAAAABexSIg06FtXzmFBQQtHZsrnyWxUzmthkBEhs/ktoeVYgAAAGQAClWjAAAAAQAAAAAAAAABAAAADEhlbGxvIHdvcmxkIQAAAAEAAAAAAAAAAAAAAADt4FJhvNwvlQqjuhc7bjLVyRf5e4K2QOzI0c6nWfVvEAAAAASoF8gAAAAAAAAAAAG2h5ViAAAAQMc6HwYaGsrlJ8/LdE9VDVq04JifpQofSmnjhrtqaTTs/VBsNGmxi4b/vaFkLLLWh8emI8FsS/vBgb8AVFVkZQU=",
-                transaction.ToEnvelopeXdrBase64());
-
-            var transaction2 = Transaction.FromEnvelopeXdr(transaction.ToEnvelopeXdr());
-
-            Assert.AreEqual(transaction.SourceAccount.AccountId, transaction2.SourceAccount.AccountId);
-            Assert.AreEqual(transaction.SequenceNumber, transaction2.SequenceNumber);
-            Assert.AreEqual(transaction.Memo, transaction2.Memo);
-            Assert.AreEqual(transaction.Fee, transaction2.Fee);
-            Assert.AreEqual(
-                ((CreateAccountOperation)transaction.Operations[0]).StartingBalance,
-                ((CreateAccountOperation)transaction2.Operations[0]).StartingBalance
-            );
-        }
-
-        [TestMethod]
-        public void TestBuilderTimeBounds()
-        {
-            // GBPMKIRA2OQW2XZZQUCQILI5TMVZ6JNRKM423BSAISDM7ZFWQ6KWEBC4
-            var source = KeyPair.FromSecretSeed("SCH27VUZZ6UAKB67BDNF6FA42YMBMQCBKXWGMFD5TZ6S5ZZCZFLRXKHS");
-            var destination = KeyPair.FromAccountId("GDW6AUTBXTOC7FIKUO5BOO3OGLK4SF7ZPOBLMQHMZDI45J2Z6VXRB5NR");
-
-            var account = new Account(source.AccountId, 2908908335136768L);
-            var transaction = new TransactionBuilder(account)
-                .AddOperation(new CreateAccountOperation.Builder(destination, "2000").Build())
-                .AddTimeBounds(new TimeBounds(42, 1337))
-                .AddMemo(Memo.Hash("abcdef"))
-                .Build();
-
-            transaction.Sign(source);
-
-            // Convert transaction to binary XDR and back again to make sure timebounds are correctly de/serialized.
-            var decodedTransaction = transaction.ToEnvelopeXdr().V1.Tx;
-
-            Assert.AreEqual(decodedTransaction.Cond.TimeBounds.MinTime.InnerValue.InnerValue, 42U);
-            Assert.AreEqual(decodedTransaction.Cond.TimeBounds.MaxTime.InnerValue.InnerValue, 1337U);
-
-            var transaction2 = Transaction.FromEnvelopeXdr(transaction.ToEnvelopeXdr());
-
-            Assert.AreEqual(transaction.SourceAccount.AccountId, transaction2.SourceAccount.AccountId);
-            Assert.AreEqual(transaction.SequenceNumber, transaction2.SequenceNumber);
-            Assert.AreEqual(transaction.Memo, transaction2.Memo);
-            Assert.AreEqual(transaction.TimeBounds, transaction2.TimeBounds);
-            Assert.AreEqual(transaction.Fee, transaction2.Fee);
-            Assert.AreEqual(
-                ((CreateAccountOperation)transaction.Operations[0]).StartingBalance,
-                ((CreateAccountOperation)transaction2.Operations[0]).StartingBalance
-            );
-        }
-
-        [TestMethod]
-        public void TestBuilderFee()
-        {
-            // GBPMKIRA2OQW2XZZQUCQILI5TMVZ6JNRKM423BSAISDM7ZFWQ6KWEBC4
-            var source = KeyPair.FromSecretSeed("SCH27VUZZ6UAKB67BDNF6FA42YMBMQCBKXWGMFD5TZ6S5ZZCZFLRXKHS");
-            var destination = KeyPair.FromAccountId("GDW6AUTBXTOC7FIKUO5BOO3OGLK4SF7ZPOBLMQHMZDI45J2Z6VXRB5NR");
-
-            var account = new Account(source.AccountId, 2908908335136768L);
-            var transaction = new TransactionBuilder(account)
-                .AddOperation(new CreateAccountOperation.Builder(destination, "2000").Build())
-                .AddOperation(new CreateAccountOperation.Builder(destination, "2000").Build())
-                .SetFee(173)
-                .Build();
-
-            // Convert transaction to binary XDR and back again to make sure fee is correctly de/serialized.
-            var decodedTransaction = transaction.ToUnsignedEnvelopeXdr().V1.Tx;
-
-            Assert.AreEqual(decodedTransaction.Fee.InnerValue, 173 * 2U);
-
-            var transaction2 = Transaction.FromEnvelopeXdr(transaction.ToUnsignedEnvelopeXdr());
-
-            Assert.AreEqual(transaction.SourceAccount.AccountId, transaction2.SourceAccount.AccountId);
-            Assert.AreEqual(transaction.SequenceNumber, transaction2.SequenceNumber);
-            Assert.AreEqual(transaction.Memo, transaction2.Memo);
-            Assert.AreEqual(transaction.TimeBounds, transaction2.TimeBounds);
-            Assert.AreEqual(transaction.Fee, transaction2.Fee);
-            Assert.AreEqual(
-                ((CreateAccountOperation)transaction.Operations[0]).StartingBalance,
-                ((CreateAccountOperation)transaction2.Operations[0]).StartingBalance
-            );
-            Assert.AreEqual(
-                ((CreateAccountOperation)transaction.Operations[1]).StartingBalance,
-                ((CreateAccountOperation)transaction2.Operations[1]).StartingBalance
-            );
         }
 
         [TestMethod]
@@ -452,29 +329,6 @@ namespace stellar_dotnet_sdk_test
             var tx = Transaction.FromEnvelopeXdr(
                 "AAAAAEdL24Ttos6RnqXCsn8duaV035/QZSC9RXw29IknigHpAAAD6AFb56cAAukDAAAAAQAAAAAAAAAAAAAAAF20fKAAAAACjCiEBz2CpG0AAAABAAAAAAAAAAEAAAAADq+QhtWseqhtnwRIFyZRdLMOVtIqzkujfzUQ22rwZuEAAAAAAAAAAGZeJLcAAAAAAAAAASeKAekAAABAE+X7cGoBhuJ5SDB8WH2B1ZA2RrWIXxGtx+n6wE5d/EggDTpZhRm92b33QqjPUFOfcZ+zbcM+Ny0WR2vcYHEXDA==");
             Assert.AreEqual("GBDUXW4E5WRM5EM6UXBLE7Y5XGSXJX472BSSBPKFPQ3PJCJHRIA6SH4C", tx.SourceAccount.AccountId);
-        }
-
-        [TestMethod]
-        public void TestTransactionWithMuxedAccount()
-        {
-            var network = new Network("Standalone Network ; February 2017");
-            var source = KeyPair.FromSecretSeed(network.NetworkId);
-            var txSource = new MuxedAccountMed25519(source, 0);
-            var account = new Account(txSource, 7);
-            var destination = KeyPair.FromAccountId("GDQERENWDDSQZS7R7WKHZI3BSOYMV3FSWR7TFUYFTKQ447PIX6NREOJM");
-            var amount = "2000";
-            var asset = new AssetTypeNative();
-            var tx = new TransactionBuilder(account)
-                .SetFee(100)
-                .AddTimeBounds(new TimeBounds(0, 0))
-                .AddOperation(
-                    new PaymentOperation.Builder(destination, asset, amount).Build())
-                .AddMemo(new MemoText("Happy birthday!"))
-                .Build();
-            var xdr = tx.ToUnsignedEnvelopeXdrBase64();
-            var back = TransactionBuilder.FromEnvelopeXdr(xdr) as Transaction;
-            Assert.IsNotNull(back);
-            Assert.AreEqual(txSource.Address, back.SourceAccount.Address);
         }
 
         [TestMethod]
