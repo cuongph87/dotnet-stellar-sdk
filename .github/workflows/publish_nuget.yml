@@ -49,7 +49,7 @@ jobs:
     - name: Install nuget validator
       run: dotnet tool update Meziantou.Framework.NuGetPackageValidation.Tool --global
     - name: Validate package
-      run: meziantou.validate-nuget-package "${{env.NuGetDirectory}}/stellar-dotnet-sdk.nupkg"
+      run: meziantou.validate-nuget-package ${{env.NuGetDirectory}}/stellar-dotnet-sdk.nupkg
   run_test:
     runs-on: ubuntu-latest
     steps:
