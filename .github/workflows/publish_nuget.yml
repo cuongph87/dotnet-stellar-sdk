@@ -20,7 +20,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
           dotnet-version: '6.0.x'
     - run: dotnet pack --configuration Release --output ${{env.NuGetDirectory}}
@@ -37,7 +37,7 @@ jobs:
     steps:
     # Install the .NET SDK indicated in the global.json file
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '6.0.x'
     # Download the NuGet package created in the previous job
@@ -55,7 +55,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
           dotnet-version: '6.0.x'
     - name: Run tests
@@ -76,7 +76,7 @@ jobs:
 
       # Install the .NET SDK indicated in the global.json file
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
             dotnet-version: '6.0.x'
       - name: Publish NuGet package
