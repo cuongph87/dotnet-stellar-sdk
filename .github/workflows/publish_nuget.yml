@@ -49,7 +49,7 @@ jobs:
     - name: Install nuget validator
       run: dotnet tool update Meziantou.Framework.NuGetPackageValidation.Tool --global
     - name: Validate package
-      run: meziantou.validate-nuget-package "${{env.NuGetDirectory}}/stellar-dotnet-sdk.nupkg"
+      run: meziantou.validate-nuget-package "${{env.NuGetDirectory}}/stellar-dotnet-sdk.9.0.55.nupkg"
   run_test:
     runs-on: ubuntu-latest
     steps:
@@ -81,4 +81,4 @@ jobs:
             dotnet-version: '6.0.x'
       - name: Publish NuGet package
         run: |
-          dotnet nuget push "${{env.NuGetDirectory}}/stellar-dotnet-sdk.nupkg" --api-key "${{ secrets.NUGET_APIKEY}}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push "${{env.NuGetDirectory}}/stellar-dotnet-sdk.9.0.55.nupkg" --api-key "${{ secrets.NUGET_APIKEY}}" --source https://api.nuget.org/v3/index.json --skip-duplicate
