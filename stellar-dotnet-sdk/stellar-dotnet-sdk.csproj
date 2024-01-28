@@ -10,9 +10,9 @@
     <PackageId>stellar-dotnet-sdk</PackageId>
     <PackageLicense>sss</PackageLicense>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <Copyright>elucidsoft 2018</Copyright>
-    <PackageProjectUrl>https://github.com/elucidsoft/dotnet-stellar-sdk</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/elucidsoft/dotnet-stellar-sdk</RepositoryUrl>
+    <Copyright>Copyright (c) 2018 Eluclidsoft; Copyright (c) 2024 Beans-BV</Copyright>
+    <PackageProjectUrl>https://github.com/Beans-BV/dotnet-stellar-sdk</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Beans-BV/dotnet-stellar-sdk</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>'.NET Core' 'Stellar' 'Horizon' 'Blockchain' 'Crypto' 'Distributed Ledger'</PackageTags>
     <ReleaseNotes>https://github.com/elucidsoft/dotnet-stellar-sdk/releases</ReleaseNotes>
